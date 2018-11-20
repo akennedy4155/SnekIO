@@ -34,7 +34,7 @@ class Location {
 class Tile {
     // TODO: draw the borders on the bottom and right edges of the game board
 
-    constructor(location, size, fillColor) {
+    constructor(location, size, fillColor = redColor) {
         this.location = location;
         this.size = size;
         this.fillColor = fillColor;
@@ -62,6 +62,7 @@ const speed = 10;
 const redColor = new Color(255, 0, 0);
 const greenColor = new Color(0, 255, 0);
 const whiteColor = new Color(255, 255, 255);
+const grayColor = new Color(220, 220, 220);
 
 // </editor-fold> END CONSTANTS~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
 
@@ -102,14 +103,28 @@ class GameBoard {
 
     // creates tiles in the grid
     constructor(width, height, tileSize) {
+        let white = true;
         this.tiles = [];
         for (let x = 0; x < width / tileSize; x++) {
             let row = [];
+            if (x % 2 == 1)
+                white = false;
+            else
+                white = true;
             for (let y = 0; y < height / tileSize; y++) {
-                row.push(new Tile(
-                    new Location(x, y),
-                    tileSize,
-                    whiteColor));
+                if(white) {
+                    row.push(new Tile(
+                        new Location(x, y),
+                        tileSize,
+                        whiteColor));
+                        white = false;
+                } else {
+                    row.push(new Tile(
+                        new Location(x, y),
+                        tileSize,
+                        grayColor));
+                        white = true;
+                }
             }
             this.tiles.push(row);
         }
@@ -122,6 +137,7 @@ class GameBoard {
     draw() {
         this.snake.move();
         // draw all of the tiles
+        noStroke();
         for (let row in this.tiles) {
             for (let tile in this.tiles[row]) {
                 this.tiles[row][tile].draw();
@@ -133,7 +149,7 @@ class GameBoard {
             this.snake.eat();
             this.food = new Food();
         }
-
+        stroke(0);
         // draw the food and the snake
         this.food.draw();
         this.snake.draw();
