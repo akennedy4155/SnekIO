@@ -237,8 +237,7 @@ class Food extends Tile {
         let x = Math.floor(Math.random() * width / tileSize);
         // random y between height
         let y = Math.floor(Math.random() * height / tileSize);
-        super(new Location(x, y), tileSize);
-        this.fillColor = greenColor;
+        super(new Location(x, y), tileSize, greenColor);
     }
 
 }
