@@ -54,9 +54,9 @@ class Tile {
 // </editor-fold> END UTILITIES ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
 
 // <editor-fold> CONSTANTS ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
-const tileSize = 16;
-const width = 640;
-const height = 480;
+const tileSize = 32;
+const width = 320;
+const height = 320;
 const speed = 10;
 
 const redColor = new Color(255, 0, 0);
@@ -90,7 +90,16 @@ class GameBoard {
 
     // creates the snake and the food
     this.snake = new Snake(new Location(0, 0));
-    this.food = new Food();
+    this.food = new Food(this.getSnakeTiles(this.snake));
+  }
+
+  getSnakeTiles(snek) {
+    let snakeHeadLoc = [snek.location];
+    let snakeTailLocs = [];
+    for(let i = 0; i < snek.tail.length; i++) {
+      snakeTailLocs.push(snek.tail[i].location);
+    }
+    return snakeHeadLoc.concat(snakeTailLocs);
   }
 
   // all of the game logic here
@@ -98,7 +107,7 @@ class GameBoard {
     this.snake.move();
     if (this.snake.location.equals(this.food.location)) {
       this.snake.eat();
-      this.food = new Food();
+      this.food = new Food(this.getSnakeTiles(this.snake));
     }
   }
 
@@ -134,6 +143,7 @@ class Snake extends Tile {
     this.fitness = 0;
     this.score = 0;
     this.playing = false;
+    this.brain = new synaptic.Architect.Perceptron(3, 8, 4);
   }
 
   start() {
@@ -230,11 +240,34 @@ class Food extends Tile {
 
   constructor(snakeTiles) {
     // TODO: what happens if the food spawns under the snake?
-    //random x between width
     let x = Math.floor(Math.random() * width / tileSize);
     // random y between height
     let y = Math.floor(Math.random() * height / tileSize);
+    let loc = new Location(x, y);
+    let valid = true;
+    for(let i = 0; i < snakeTiles.length; i++) {
+      if(loc.equals(snakeTiles[i])) {
+        valid = false;
+        break;
+      }
+    }
+    while(!valid) {
+      x = Math.floor(Math.random() * width / tileSize);
+      // random y between height
+      y = Math.floor(Math.random() * height / tileSize);
+      loc = new Location(x, y);
+      valid = true;
+      for(let i = 0; i < snakeTiles.length; i++) {
+        if(loc.equals(snakeTiles[i]))
+          valid = false;
+          break;
+      }
+    }
     super(new Location(x, y), tileSize, greenColor);
   }
 
+  pickRandomLocation() {
+    //random x between width
+
+  }
 }
