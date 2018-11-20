@@ -133,36 +133,44 @@ class Snake extends Tile {
     this.lastLocation = this.tail[this.tail.length - 1].location;
     this.fitness = 0;
     this.score = 0;
+    this.playing = false;
+  }
+
+  start() {
+    this.playing = true;
   }
 
   move() {
-    // move head
-    let headPastLocation = this.location;
-    this.lastLocation = this.tail[this.tail.length - 1].location;
-    switch (this.direction) {
-      case Direction.RIGHT:
-        this.location = new Location(this.location.x + 1, this.location.y);
-        break;
-      case Direction.LEFT:
-        this.location = new Location(this.location.x - 1, this.location.y);
-        break;
-      case Direction.UP:
-        this.location = new Location(this.location.x, this.location.y - 1);
-        break;
-      case Direction.DOWN:
-        this.location = new Location(this.location.x, this.location.y + 1);
-        break;
-    }
+    if (this.playing) {
+      // move head
+      let headPastLocation = this.location;
+      this.lastLocation = this.tail[this.tail.length - 1].location;
+      switch (this.direction) {
+        case Direction.RIGHT:
+          this.location = new Location(this.location.x + 1, this.location.y);
+          break;
+        case Direction.LEFT:
+          this.location = new Location(this.location.x - 1, this.location.y);
+          break;
+        case Direction.UP:
+          this.location = new Location(this.location.x, this.location.y - 1);
+          break;
+        case Direction.DOWN:
+          this.location = new Location(this.location.x, this.location.y + 1);
+          break;
+      }
 
-    // move the tail
-    for (let i = this.tail.length - 1; i > 0; i--) {
-      this.tail[i].location = this.tail[i - 1].location;
-    }
-    this.tail[0].location = headPastLocation;
-    this.fitness ++;
-    // check for collisions
-    if (this.colliding()) {
-      this.reset();
+      // move the tail
+      for (let i = this.tail.length - 1; i > 0; i--) {
+        this.tail[i].location = this.tail[i - 1].location;
+      }
+      this.tail[0].location = headPastLocation;
+      this.fitness ++;
+      // check for collisions
+      if (this.colliding()) {
+        console.log("score:", this.score, "fitness:", this.fitness);
+        this.reset();
+      }
     }
   }
 
@@ -184,14 +192,16 @@ class Snake extends Tile {
     this.lastLocation = this.tail[this.tail.length - 1].location;
     this.score = 0;
     this.fitness = 0;
+    this.playing = false;
   }
 
   draw() {
-    super.draw();
-    for (let i = 0; i < this.tail.length; i++) {
-      this.tail[i].draw();
+    if (this.playing) {
+      super.draw();
+      for (let i = 0; i < this.tail.length; i++) {
+        this.tail[i].draw();
+      }
     }
-    console.log("score:",this.score,"fitness:",this.fitness);
   }
 
   eat() {
