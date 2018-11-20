@@ -1,11 +1,5 @@
-const tileSize = 16;
-const width = 640;
-const height = 480;
-const speed = 10;
-
 //TODO ADD A Score thing in the html
-
-// Colors
+// <editor-fold> UTILITIES ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
 class Color {
 
     constructor(r, g, b) {
@@ -16,11 +10,6 @@ class Color {
 
 }
 
-const redColor = new Color(255, 0, 0);
-const greenColor = new Color(0, 255, 0);
-const whiteColor = new Color(255, 255, 255);
-
-// enum for directions
 let Direction = Object.freeze({
     'UP': 0,
     'LEFT': 1,
@@ -28,7 +17,55 @@ let Direction = Object.freeze({
     'DOWN': 3
 });
 
+class Location {
 
+    // x and y are defined as (0, 0) top left, x horizontal, y vertical
+    constructor(x, y) {
+        this.x = x;
+        this.y = y;
+    }
+
+    equals(otherLoc) {
+        return this.x == otherLoc.x && this.y == otherLoc.y;
+    }
+
+}
+
+class Tile {
+    // TODO: draw the borders on the bottom and right edges of the game board
+
+    constructor(location, size, fillColor) {
+        this.location = location;
+        this.size = size;
+        this.fillColor = fillColor;
+    }
+
+
+    draw() {
+        fill(this.fillColor.r, this.fillColor.g, this.fillColor.b);
+        rect(this.location.x * this.size,
+            this.location.y * this.size,
+            this.size,
+            this.size
+        );
+    }
+
+}
+// </editor-fold> END UTILITIES ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
+
+// <editor-fold> CONSTANTS ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
+const tileSize = 16;
+const width = 640;
+const height = 480;
+const speed = 10;
+
+const redColor = new Color(255, 0, 0);
+const greenColor = new Color(0, 255, 0);
+const whiteColor = new Color(255, 255, 255);
+
+// </editor-fold> ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
+
+// <editor-fold> MAIN p5 ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
 
 function setup() {
     // setup/initialization here
@@ -59,37 +96,47 @@ function keyPressed() {
     }
 }
 
-class Tile {
-    // TODO: draw the borders on the bottom and right edges of the game board
+// </editor-fold> ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
 
-    constructor(location, size, fillColor) {
-        this.location = location;
-        this.size = size;
-        this.fillColor = fillColor;
+class GameBoard {
+
+    // creates tiles in the grid
+    constructor(width, height, tileSize) {
+        this.tiles = [];
+        for (let x = 0; x < width / tileSize; x++) {
+            let row = [];
+            for (let y = 0; y < height / tileSize; y++) {
+                row.push(new Tile(
+                    new Location(x, y),
+                    tileSize,
+                    whiteColor));
+            }
+            this.tiles.push(row);
+        }
+
+        // creates the snake and the food
+        this.snake = new Snake(new Location(0, 0));
+        this.food = new Food();
     }
-
 
     draw() {
-        fill(this.fillColor.r, this.fillColor.g, this.fillColor.b);
-        rect(this.location.x * this.size,
-            this.location.y * this.size,
-            this.size,
-            this.size
-        );
-    }
+        this.snake.move();
+        // draw all of the tiles
+        for (let row in this.tiles) {
+            for (let tile in this.tiles[row]) {
+                this.tiles[row][tile].draw();
+            }
+        }
 
-}
+        // if the head of the snake is on the food. eat the food and make a new food.
+        if (this.snake.location.equals(this.food.location)) {
+            this.snake.eat();
+            this.food = new Food();
+        }
 
-class Location {
-
-    // x and y are defined as 0, 0, x horizontal, y vertical
-    constructor(x, y) {
-        this.x = x;
-        this.y = y;
-    }
-
-    equals(otherLoc) {
-        return this.x == otherLoc.x && this.y == otherLoc.y;
+        // draw the food and the snake
+        this.food.draw();
+        this.snake.draw();
     }
 
 }
@@ -170,10 +217,10 @@ class Snake extends Tile {
         let isCollision = false;
         if (this.location.x < 0 || this.location.x >= (width / tileSize) ||
             this.location.y < 0 || this.location.y >= (height / tileSize)) {
-                isCollision = true;
+            isCollision = true;
         }
         for (let i = 0; i < this.tail.length; i++) {
-            if(this.location.equals(this.tail[i].location)){
+            if (this.location.equals(this.tail[i].location)) {
                 isCollision = true;
                 break;
             }
@@ -182,59 +229,16 @@ class Snake extends Tile {
     }
 }
 
-    class Food extends Tile {
+class Food extends Tile {
 
-        constructor(snakeTiles) {
-            // TODO: what happens if the food spawns under the snake?
-            //random x between width
-            let x = Math.floor(Math.random() * width / tileSize);
-            // random y between height
-            let y = Math.floor(Math.random() * height / tileSize);
-            super(new Location(x, y), tileSize);
-            this.fillColor = greenColor;
-        }
-
+    constructor(snakeTiles) {
+        // TODO: what happens if the food spawns under the snake?
+        //random x between width
+        let x = Math.floor(Math.random() * width / tileSize);
+        // random y between height
+        let y = Math.floor(Math.random() * height / tileSize);
+        super(new Location(x, y), tileSize);
+        this.fillColor = greenColor;
     }
 
-    class GameBoard {
-
-        // creates tiles in the grid
-        constructor(width, height, tileSize) {
-            this.tiles = [];
-            for (let x = 0; x < width / tileSize; x++) {
-                let row = [];
-                for (let y = 0; y < height / tileSize; y++) {
-                    row.push(new Tile(
-                        new Location(x, y),
-                        tileSize,
-                        whiteColor));
-                }
-                this.tiles.push(row);
-            }
-
-            // creates the snake and the food
-            this.snake = new Snake(new Location(0, 0));
-            this.food = new Food();
-        }
-
-        draw() {
-            this.snake.move();
-            // draw all of the tiles
-            for (let row in this.tiles) {
-                for (let tile in this.tiles[row]) {
-                    this.tiles[row][tile].draw();
-                }
-            }
-
-            // if the head of the snake is on the food. eat the food and make a new food.
-            if (this.snake.location.equals(this.food.location)) {
-                this.snake.eat();
-                this.food = new Food();
-            }
-
-            // draw the food and the snake
-            this.food.draw();
-            this.snake.draw();
-        }
-
-    }
+}
