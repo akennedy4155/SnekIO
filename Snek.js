@@ -66,40 +66,6 @@ const grayColor = new Color(220, 220, 220);
 
 // </editor-fold> END CONSTANTS~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
 
-// <editor-fold> MAIN p5 ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
-
-function setup() {
-  // setup/initialization here
-  if (width % tileSize !== 0 || height % tileSize !== 0) {
-    throw new Error('Either width or height invalid. Must be divisible evenly by the tile size.');
-  }
-
-  createCanvas(width, height);
-  g = new GameBoard(width, height, tileSize);
-  frameRate(speed);
-}
-
-function draw() {
-  g.playTurn();
-  g.draw();
-}
-
-function keyPressed() {
-  if (keyCode == 38) {
-    g.snake.changeDirection(Direction.UP);
-  } else if (keyCode == 37) {
-    g.snake.changeDirection(Direction.LEFT);
-  } else if (keyCode == 39) {
-    g.snake.changeDirection(Direction.RIGHT);
-  } else if (keyCode == 40) {
-    g.snake.changeDirection(Direction.DOWN);
-  } else if (keyCode == 32) {
-    g.snake.reset();
-  }
-}
-
-// </editor-fold> END MAIN p5~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
-
 class GameBoard {
 
   // creates tiles in the grid
@@ -165,6 +131,8 @@ class Snake extends Tile {
       new Tile(new Location(-2, 0), tileSize, redColor)
     ];
     this.lastLocation = this.tail[this.tail.length - 1].location;
+    this.fitness = 0;
+    this.score = 0;
   }
 
   move() {
@@ -191,7 +159,7 @@ class Snake extends Tile {
       this.tail[i].location = this.tail[i - 1].location;
     }
     this.tail[0].location = headPastLocation;
-
+    this.fitness ++;
     // check for collisions
     if (this.colliding()) {
       this.reset();
@@ -214,6 +182,8 @@ class Snake extends Tile {
       new Tile(new Location(-2, 0), tileSize, redColor)
     ];
     this.lastLocation = this.tail[this.tail.length - 1].location;
+    this.score = 0;
+    this.fitness = 0;
   }
 
   draw() {
@@ -221,10 +191,13 @@ class Snake extends Tile {
     for (let i = 0; i < this.tail.length; i++) {
       this.tail[i].draw();
     }
+    console.log("score:",this.score,"fitness:",this.fitness);
   }
 
   eat() {
     this.tail.push(new Tile(this.lastLocation, tileSize, redColor));
+    this.score ++;
+    this.fitness += 100;
   }
 
   colliding() {
