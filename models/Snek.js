@@ -113,34 +113,43 @@ class Snake extends Tile {
     // check the distance to the wall
   }
 
+  // move the snake on the gameboard, once per frame
   move(gameBoard) {
     if (this.playing) {
       // move head
       let headPastLocation = this.location;
+      // set the end location of the snake so you know where to add the last segment if you eat
       this.lastLocation = this.tail[this.tail.length - 1].location;
+      // move the snake's head in direction moving
       this.location = this.location.add(this.direction);
 
       // move the tail
       for (let i = this.tail.length - 1; i > 0; i--) {
         this.tail[i].location = this.tail[i - 1].location;
       }
+      // move the last piece of the tail to the last location of the head
       this.tail[0].location = headPastLocation;
+      // increment fitness
       this.fitness++;
       // check for collisions
+      // if colliding, reset the snake and print the score
       if (this.colliding()) {
         console.log("score:", this.score, "fitness:", this.fitness);
         this.reset();
       }
+      // reset the direction changed boolean
       this.directionChangedThisTurn = false;
     }
   }
 
+  // change the direction of the snake
   changeDirection(direction) {
-    // if statement to prevent moving backwards,
-    // only changes direction if the direction hasn't already changed this turn AND
-    // doesn't change the direction if the button pressed is the same as the direction that it's facing
+    // only change direction IF:
+    // 1. direction isn't the opposite that the snake is facing and
+    // 2. direction hasn't already changed this turn
     if (!(this.direction.x + direction.x == 0 && this.direction.y + direction.y == 0) && !this.directionChangedThisTurn) {
-      // this allows for changing direction if the first key presses are in the same direction that the snake is already travelling
+      // if the direction isn't the same that it's already travelling, then you have used up your one allotted move for this turn
+      // and the direction changed bool will be flipped
       if (!(this.direction.x == direction.x && this.direction.y == direction.y)) {
         this.directionChangedThisTurn = true;
       }
@@ -148,6 +157,7 @@ class Snake extends Tile {
     }
   }
 
+  // reset the snake to the starting position
   reset() {
     this.location = new Location(0, 0);
     this.direction = Direction.RIGHT;
@@ -161,7 +171,9 @@ class Snake extends Tile {
     this.playing = false;
   }
 
+  // draw the snake
   draw() {
+    // if playing, draw the head and then draw each tile of the tail
     if (this.playing) {
       super.draw();
       for (let i = 0; i < this.tail.length; i++) {
@@ -170,18 +182,23 @@ class Snake extends Tile {
     }
   }
 
+  // eat a food tile
   eat() {
+    // add a new segment to the end of the snake
     this.tail.push(new Tile(this.lastLocation, tileSize, redColor));
+    // increment score and fitness
     this.score++;
     this.fitness += 100;
   }
 
   colliding() {
     let isCollision = false;
+    // if snake's head is off the screen then collision
     if (this.location.x < 0 || this.location.x >= (width / tileSize) ||
       this.location.y < 0 || this.location.y >= (height / tileSize)) {
       isCollision = true;
     }
+    // if head collides with any other part of the tail then collision
     for (let i = 0; i < this.tail.length; i++) {
       if (this.location.equals(this.tail[i].location)) {
         isCollision = true;
