@@ -118,7 +118,7 @@ class GameBoard {
 
   // all of the game logic here
   playTurn() {
-    this.snake.move();
+    this.snake.move(this);
     if (this.snake.location.equals(this.food.location)) {
       this.snake.eat();
       this.food = new Food(this.getSnakeTiles(this.snake));
@@ -159,6 +159,7 @@ class Snake extends Tile {
     this.playing = false;
     this.brain = new NeuralNetwork(7,6,4);
     this.sensors = [];
+    this.directionChangedThisTurn = false;
   }
 
   start() {
@@ -179,7 +180,7 @@ class Snake extends Tile {
     // check the distance to the wall
   }
 
-  move() {
+  move(gameBoard) {
     if (this.playing) {
       // move head
       let headPastLocation = this.location;
@@ -197,13 +198,23 @@ class Snake extends Tile {
         console.log("score:", this.score, "fitness:", this.fitness);
         this.reset();
       }
+      this.directionChangedThisTurn = false;
     }
   }
 
   changeDirection(direction) {
-    // if statement to prevent moving backwards
-    if (!(this.direction.x + direction.x == 0 && this.direction.y + direction.y == 0))
+    // if statement to prevent moving backwards,
+    // only changes direction if the direction hasn't already changed this turn AND
+    // doesn't change the direction if the button pressed is the same as the direction that it's facing
+
+    if (!(this.direction.x + direction.x == 0 && this.direction.y + direction.y == 0) && !this.directionChangedThisTurn) {
+      // this allows for changing direction if the first key presses are in the same direction that the snake is already travelling
+      if (!(this.direction.x == direction.x && this.direction.y == direction.y)) {
+        this.directionChangedThisTurn = true;
+      }
       this.direction = direction;
+    }
+
   }
 
   reset() {
