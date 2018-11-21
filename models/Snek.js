@@ -1,71 +1,4 @@
 //TODO ADD A Score thing in the html
-// <editor-fold> UTILITIES ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
-class Color {
-
-  constructor(r, g, b) {
-    this.r = r;
-    this.g = g;
-    this.b = b;
-  }
-
-}
-
-let Direction = Object.freeze({
-  'UP': {
-    "x" : 0,
-    "y" : -1
-  },
-  'LEFT': {
-    "x" : -1,
-    "y" : 0
-  },
-  'RIGHT': {
-    "x" : 1,
-    "y" : 0
-  },
-  'DOWN': {
-    "x" : 0,
-    "y" : 1
-  }
-});
-
-class Location {
-
-  // x and y are defined as (0, 0) top left, x horizontal, y vertical
-  constructor(x, y) {
-    this.x = x;
-    this.y = y;
-  }
-
-  equals(otherLoc) {
-    return this.x == otherLoc.x && this.y == otherLoc.y;
-  }
-
-  add(otherLoc) {
-    return new Location(this.x + otherLoc.x, this.y + otherLoc.y);
-  }
-}
-
-class Tile {
-
-  constructor(location, size, fillColor = redColor) {
-    this.location = location;
-    this.size = size;
-    this.fillColor = fillColor;
-  }
-
-
-  draw() {
-    fill(this.fillColor.r, this.fillColor.g, this.fillColor.b);
-    rect(this.location.x * this.size,
-      this.location.y * this.size,
-      this.size,
-      this.size
-    );
-  }
-
-}
-// </editor-fold> END UTILITIES ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
 
 // <editor-fold> CONSTANTS ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
 const tileSize = 16;
@@ -88,7 +21,7 @@ class GameBoard {
     this.tiles = [];
     for (let x = 0; x < width / tileSize; x++) {
       let row = [];
-      (x % 2 == 1) ? white = false : white = true;
+      (x % 2 == 1) ? white = false: white = true;
       for (let y = 0; y < height / tileSize; y++) {
         let color = whiteColor;
         if (!white)
@@ -110,7 +43,7 @@ class GameBoard {
   getSnakeTiles(snek) {
     let snakeHeadLoc = [snek.location];
     let snakeTailLocs = [];
-    for(let i = 0; i < snek.tail.length; i++) {
+    for (let i = 0; i < snek.tail.length; i++) {
       snakeTailLocs.push(snek.tail[i].location);
     }
     return snakeHeadLoc.concat(snakeTailLocs);
@@ -157,7 +90,7 @@ class Snake extends Tile {
     this.fitness = 0;
     this.score = 0;
     this.playing = false;
-    this.brain = new NeuralNetwork(7,6,4);
+    this.brain = new NeuralNetwork(7, 6, 4);
     this.sensors = [];
     this.directionChangedThisTurn = false;
   }
@@ -192,7 +125,7 @@ class Snake extends Tile {
         this.tail[i].location = this.tail[i - 1].location;
       }
       this.tail[0].location = headPastLocation;
-      this.fitness ++;
+      this.fitness++;
       // check for collisions
       if (this.colliding()) {
         console.log("score:", this.score, "fitness:", this.fitness);
@@ -239,7 +172,7 @@ class Snake extends Tile {
 
   eat() {
     this.tail.push(new Tile(this.lastLocation, tileSize, redColor));
-    this.score ++;
+    this.score++;
     this.fitness += 100;
   }
 
@@ -268,21 +201,21 @@ class Food extends Tile {
     let loc = new Location(x, y);
     let valid = true;
     print(snakeTiles);
-    for(let i = 0; i < snakeTiles.length; i++) {
-      if(loc.equals(snakeTiles[i])) {
+    for (let i = 0; i < snakeTiles.length; i++) {
+      if (loc.equals(snakeTiles[i])) {
         valid = false;
         break;
       }
     }
-    while(!valid) {
+    while (!valid) {
       console.log("wasn't valid...");
       x = Math.floor(Math.random() * width / tileSize);
       // random y between height
       y = Math.floor(Math.random() * height / tileSize);
       loc = new Location(x, y);
       valid = true;
-      for(let i = 0; i < snakeTiles.length; i++) {
-        if(loc.equals(snakeTiles[i]))
+      for (let i = 0; i < snakeTiles.length; i++) {
+        if (loc.equals(snakeTiles[i]))
           valid = false;
       }
     }
