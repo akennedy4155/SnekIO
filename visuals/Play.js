@@ -12,7 +12,6 @@ function setup() {
 }
 
 function draw() {
-  g.playTurn();
   g.draw();
 }
 
@@ -26,7 +25,7 @@ function keyPressed() {
   } else if (keyCode == 40) {
     g.snake.changeDirection(Direction.DOWN);
   } else if (keyCode == 32) {
-    g.snake.reset();
+    g.playTurn();
   }
 }
 
