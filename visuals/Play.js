@@ -24,7 +24,7 @@ function keyPressed() {
     g.snake.changeDirection(Direction.RIGHT);
   } else if (keyCode == 40) {
     g.snake.changeDirection(Direction.DOWN);
-  } else if (keyCode == 32) {
+  } else if (keyCode == 90) {
     g.playTurn();
   }
 }
