@@ -206,7 +206,6 @@ class Snake extends Tile {
     // if statement to prevent moving backwards,
     // only changes direction if the direction hasn't already changed this turn AND
     // doesn't change the direction if the button pressed is the same as the direction that it's facing
-
     if (!(this.direction.x + direction.x == 0 && this.direction.y + direction.y == 0) && !this.directionChangedThisTurn) {
       // this allows for changing direction if the first key presses are in the same direction that the snake is already travelling
       if (!(this.direction.x == direction.x && this.direction.y == direction.y)) {
@@ -214,7 +213,6 @@ class Snake extends Tile {
       }
       this.direction = direction;
     }
-
   }
 
   reset() {
