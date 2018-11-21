@@ -41,6 +41,9 @@ class Location {
     return this.x == otherLoc.x && this.y == otherLoc.y;
   }
 
+  add(otherLoc) {
+    return new Location(this.x + otherLoc.x, this.y + otherLoc.y);
+  }
 }
 
 class Tile {
@@ -174,39 +177,14 @@ class Snake extends Tile {
     this.sensors = [];
     // forward sensor
     // check the distance to the wall
-    switch(this.direction) {
-      case Direction.UP:
-        break;
-      case Direction.RIGHT:
-        break;
-      case Direction.LEFT:
-        break;
-      case Direction.DOWN:
-        break;
-    }
-
   }
 
   move() {
-    console.log(this.sensors);
     if (this.playing) {
       // move head
       let headPastLocation = this.location;
       this.lastLocation = this.tail[this.tail.length - 1].location;
-      switch (this.direction) {
-        case Direction.RIGHT:
-          this.location = new Location(this.location.x + 1, this.location.y);
-          break;
-        case Direction.LEFT:
-          this.location = new Location(this.location.x - 1, this.location.y);
-          break;
-        case Direction.UP:
-          this.location = new Location(this.location.x, this.location.y - 1);
-          break;
-        case Direction.DOWN:
-          this.location = new Location(this.location.x, this.location.y + 1);
-          break;
-      }
+      this.location = this.location.add(this.direction);
 
       // move the tail
       for (let i = this.tail.length - 1; i > 0; i--) {
@@ -223,10 +201,8 @@ class Snake extends Tile {
   }
 
   changeDirection(direction) {
-    // if statement to prevent moving backwards.
-    // utilizes the numeric values of the enumeration to check for
-    // invalid combinations of movements compared to current direction
-    if ((direction.x + this.direction.x + direction.y + this.direction.y) != 0)
+    // if statement to prevent moving backwards
+    if (!(this.direction.x + direction.x == 0 && this.direction.y + direction.y == 0))
       this.direction = direction;
   }
 
