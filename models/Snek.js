@@ -1,9 +1,9 @@
 //TODO ADD A Score thing in the html
 
 // <editor-fold> CONSTANTS ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
-const tileSize = 16;
-const width = 640;
-const height = 480;
+const tileSize = 32;
+const width = 160;
+const height = 160;
 const speed = 10;
 
 const redColor = new Color(255, 0, 0);
@@ -37,16 +37,7 @@ class GameBoard {
 
     // creates the snake and the food
     this.snake = new Snake(new Location(0, 0));
-    this.food = new Food(this.getSnakeTiles(this.snake));
-  }
-
-  getSnakeTiles(snek) {
-    let snakeHeadLoc = [snek.location];
-    let snakeTailLocs = [];
-    for (let i = 0; i < snek.tail.length; i++) {
-      snakeTailLocs.push(snek.tail[i].location);
-    }
-    return snakeHeadLoc.concat(snakeTailLocs);
+    this.food = new Food(this.snake.getFullLocation());
   }
 
   // all of the game logic here
@@ -54,7 +45,7 @@ class GameBoard {
     this.snake.move(this);
     if (this.snake.location.equals(this.food.location)) {
       this.snake.eat();
-      this.food = new Food(this.getSnakeTiles(this.snake));
+      this.food = new Food(this.snake.getFullLocation());
     }
   }
 
@@ -73,13 +64,23 @@ class GameBoard {
     this.snake.draw();
   }
 
+  // <editor-fold> BUTTON OPERATIONS~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
+  // function for the click of the start button
+  start() {
+    this.snake.playing = true;
+  }
+
+  // reset the snake to the starting position
+  reset() {
+    this.snake.respawn();
+  }
+  // </editor-fold> END BUTTON OPERATIONS~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
 }
 
 class Snake extends Tile {
 
   constructor(location) {
-    super(location, tileSize);
-    this.fillColor = redColor;
+    super(location, tileSize, redColor);
     this.direction = Direction.RIGHT;
     // initialize the snake with two pieces of tail
     this.tail = [
@@ -90,31 +91,16 @@ class Snake extends Tile {
     this.fitness = 0;
     this.score = 0;
     this.playing = false;
-    this.brain = new NeuralNetwork(7, 6, 4);
+    // random brain
+    this.brain = new Brain(7, 6, 4);
     this.sensors = [];
     this.directionChangedThisTurn = false;
   }
 
-  start() {
-    this.playing = true;
-  }
-
-  sense() {
-    // get all of the inputs:
-    // 1. distance to dying forward
-    // 2. distance to dying left
-    // 3. distance to dying right
-    // 4. distance to dying forward left
-    // 5. distance to dying forward right
-    // 6. x to food
-    // 7. y to food
-    this.sensors = [];
-    // forward sensor
-    // check the distance to the wall
-  }
+  // <editor-fold> PHYSICAL~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
 
   // move the snake on the gameboard, once per frame
-  move(gameBoard) {
+  move() {
     if (this.playing) {
       // move head
       let headPastLocation = this.location;
@@ -135,7 +121,7 @@ class Snake extends Tile {
       // if colliding, reset the snake and print the score
       if (this.colliding()) {
         console.log("score:", this.score, "fitness:", this.fitness);
-        this.reset();
+        this.respawn();
       }
       // reset the direction changed boolean
       this.directionChangedThisTurn = false;
@@ -157,8 +143,79 @@ class Snake extends Tile {
     }
   }
 
-  // reset the snake to the starting position
-  reset() {
+  // eat a food tile
+  eat() {
+    // add a new segment to the end of the snake
+    this.tail.push(new Tile(this.lastLocation, tileSize, redColor));
+    // increment score and fitness
+    this.score++;
+    this.fitness += 100;
+  }
+
+  // determines if the snake is going to collide with a wall or another part of the snake
+  colliding() {
+    let isCollision = false;
+    // if snake's head is off the screen then collision
+    if (this.location.x < 0 || this.location.x >= (width / tileSize) ||
+      this.location.y < 0 || this.location.y >= (height / tileSize)) {
+      isCollision = true;
+    }
+    // if head collides with any other part of the tail then collision
+    for (let i = 0; i < this.tail.length; i++) {
+      if (this.location.equals(this.tail[i].location)) {
+        isCollision = true;
+        break;
+      }
+    }
+    return isCollision;
+  }
+
+  // </editor-fold> END PHYSICAL~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
+
+  // <editor-fold> SENSOR ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
+
+  // populate the sensors with 7 data points that are input to the brain
+  sense(food) {
+    // get the distances from dying in cardinal directions (8 directions)
+    // UP
+    // DOWN
+    // LEFT
+    // RIGHT
+    // UP-RIGHT
+    // UP-LEFT
+    // DOWN-RIGHT
+    // DOWN-LEFT
+    // get all of the inputs:
+    // 1. distance to dying forward
+    // 2. distance to dying left
+    // 3. distance to dying right
+    // 4. distance to dying forward left
+    // 5. distance to dying forward right
+    // 6. x to food
+    this.sensors.push(food.location.x - this.location.x);
+    // 7. y to food
+    this.sensors.push(food.location.y - this.location.y);
+    // forward sensor
+    // check the distance to the wall
+  }
+
+  // get the nearest obstacle in 1/8 of the directions (omni-directional)
+  getNearestObstacleInDirection(d) {
+
+  }
+
+  // </editor-fold> END SENSOR ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
+
+  // <editor-fold> UTILITY ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
+
+  // get the locations that the snake is occupying
+  getFullLocation() {
+    print([this.location].concat(this.tail.map(t => t.location)));
+    return [this.location].concat(this.tail.map(t => t.location));
+  }
+
+  // respawn the snake with default settings
+  respawn() {
     this.location = new Location(0, 0);
     this.direction = Direction.RIGHT;
     this.tail = [
@@ -182,60 +239,30 @@ class Snake extends Tile {
     }
   }
 
-  // eat a food tile
-  eat() {
-    // add a new segment to the end of the snake
-    this.tail.push(new Tile(this.lastLocation, tileSize, redColor));
-    // increment score and fitness
-    this.score++;
-    this.fitness += 100;
-  }
+  // </editor-fold> END UTILITY ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
 
-  colliding() {
-    let isCollision = false;
-    // if snake's head is off the screen then collision
-    if (this.location.x < 0 || this.location.x >= (width / tileSize) ||
-      this.location.y < 0 || this.location.y >= (height / tileSize)) {
-      isCollision = true;
-    }
-    // if head collides with any other part of the tail then collision
-    for (let i = 0; i < this.tail.length; i++) {
-      if (this.location.equals(this.tail[i].location)) {
-        isCollision = true;
-        break;
-      }
-    }
-    return isCollision;
-  }
+
 }
 
 class Food extends Tile {
-
   constructor(snakeTiles) {
-    let x = Math.floor(Math.random() * width / tileSize);
-    // random y between height
-    let y = Math.floor(Math.random() * height / tileSize);
-    let loc = new Location(x, y);
-    let valid = true;
-    print(snakeTiles);
-    for (let i = 0; i < snakeTiles.length; i++) {
-      if (loc.equals(snakeTiles[i])) {
-        valid = false;
-        break;
-      }
-    }
+    let valid = false;
+    let x, y, loc;
+    // keep making food until it spawns in a valid location
     while (!valid) {
-      console.log("wasn't valid...");
+      // pick random x and y and make a location out of it
       x = Math.floor(Math.random() * width / tileSize);
-      // random y between height
       y = Math.floor(Math.random() * height / tileSize);
       loc = new Location(x, y);
+      // default valid to true
       valid = true;
+      // check all of the tiles of the snake to see if the food is under
       for (let i = 0; i < snakeTiles.length; i++) {
         if (loc.equals(snakeTiles[i]))
           valid = false;
       }
     }
+    // create the food
     super(new Location(x, y), tileSize, greenColor);
   }
 }
