@@ -1,6 +1,6 @@
 // FROM SIRAJ https://github.com/llSourcell/Modeling_Evolution_with_TensorflowJS
 /** Simple Neural Network library that can only create neural networks of exactly 3 layers */
-class NeuralNetwork {
+class Brain {
 
     /**
      * Takes in the number of input nodes, hidden node and output nodes
