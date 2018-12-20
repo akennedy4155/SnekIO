@@ -14,8 +14,8 @@ class Snake extends Tile {
     this.score = 0;
     this.playing = false;
     // random brain
-    this.brain = new Brain(7, 6, 4);
-    this.sensors = [];
+    this.brain = new Brain(7, 6, 3);
+    this.sensors = {};
     this.directionChangedThisTurn = false;
   }
 
@@ -41,7 +41,7 @@ class Snake extends Tile {
       this.fitness++;
       // check for collisions
       // if colliding, reset the snake and print the score
-      if (this.colliding()) {
+      if (this.colliding(this.location)) {
         console.log("score:", this.score, "fitness:", this.fitness);
         this.respawn();
       }
@@ -74,17 +74,17 @@ class Snake extends Tile {
     this.fitness += 100;
   }
 
-  // determines if the snake is going to collide with a wall or another part of the snake
-  colliding() {
+  // determines if the location has a collision is intersecting a wall or another part of the snake
+  colliding(loc) {
     let isCollision = false;
     // if snake's head is off the screen then collision
-    if (this.location.x < 0 || this.location.x >= (width / tileSize) ||
-      this.location.y < 0 || this.location.y >= (height / tileSize)) {
+    if (loc.x < 0 || loc.x >= (width / tileSize) ||
+      loc.y < 0 || loc.y >= (height / tileSize)) {
       isCollision = true;
     }
     // if head collides with any other part of the tail then collision
     for (let i = 0; i < this.tail.length; i++) {
-      if (this.location.equals(this.tail[i].location)) {
+      if (loc.equals(this.tail[i].location)) {
         isCollision = true;
         break;
       }
@@ -97,33 +97,37 @@ class Snake extends Tile {
   // <editor-fold> SENSOR ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
 
   // populate the sensors with 7 data points that are input to the brain
-  sense(food) {
+  sense(food, verbose = false) {
     // get the distances from dying in cardinal directions (8 directions)
-    // UP
-    // DOWN
-    // LEFT
-    // RIGHT
-    // UP-RIGHT
-    // UP-LEFT
-    // DOWN-RIGHT
-    // DOWN-LEFT
     // get all of the inputs:
     // 1. distance to dying forward
+    let fDist = this.getNearestObstacleInDirection(this.direction);
     // 2. distance to dying left
     // 3. distance to dying right
     // 4. distance to dying forward left
     // 5. distance to dying forward right
     // 6. x to food
-    this.sensors.push(food.location.x - this.location.x);
-    // 7. y to food
-    this.sensors.push(food.location.y - this.location.y);
+    // this.sensors.push(food.location.x - this.location.x);
+    // // 7. y to food
+    // this.sensors.push(food.location.y - this.location.y);
     // forward sensor
     // check the distance to the wall
+    if (verbose) {
+        console.log("fDist: " + fDist);
+    }
   }
 
   // get the nearest obstacle in 1/8 of the directions (omni-directional)
   getNearestObstacleInDirection(d) {
-
+      // current tile that you're checking for obstacles == death
+      let checkLocation = this.location;
+      // distance to the current check tile
+      let dist = 0;
+      while(!this.colliding(checkLocation)) {
+          checkLocation = checkLocation.add(d);
+          dist = this.location.distanceTo(checkLocation);
+      }
+      return dist;
   }
 
   // </editor-fold> END SENSOR ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
