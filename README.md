@@ -1,5 +1,5 @@
 ***
-# SnekIO -
+# SnekIO - A beginner's project for learning neural networks that evolve with genetic algorithms to control a basic snake game.
 
 ## Programmer's Logs
 ### 12/19/18
