@@ -9,6 +9,7 @@ const redColor = new Color(255, 0, 0);
 const greenColor = new Color(0, 255, 0);
 const whiteColor = new Color(255, 255, 255);
 const grayColor = new Color(220, 220, 220);
+const blueColor = new Color(0, 0, 255);
 
 // </editor-fold> END CONSTANTS~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
 

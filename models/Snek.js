@@ -2,7 +2,7 @@
 class Snake extends Tile {
 
   constructor(location) {
-    super(location, tileSize, redColor);
+    super(location, tileSize, blueColor);
     this.direction = Direction.RIGHT;
     // initialize the snake with two pieces of tail
     this.tail = [
