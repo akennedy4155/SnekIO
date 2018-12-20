@@ -12,4 +12,7 @@
 - QUESTIONS:
     - Do the inputs need to be normalized?
     - How to choose the direction based on the output classification
+### 12/20/18
+- sensors get all of the normalized inputs
+- makes a prediction based on these inputs
 ***
