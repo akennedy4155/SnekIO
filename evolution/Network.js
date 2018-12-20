@@ -31,7 +31,7 @@ class Brain {
             /* Takes a 1D array */
             let input_layer = tf.tensor(user_input, [1, this.input_nodes]);
             let hidden_layer = input_layer.matMul(this.input_weights).sigmoid();
-            let output_layer = hidden_layer.matMul(this.output_weights).sigmoid();
+            let output_layer = hidden_layer.matMul(this.output_weights).softmax();
             output = output_layer.dataSync();
         });
         return output;
