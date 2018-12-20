@@ -112,6 +112,7 @@ class Snake extends Tile {
         // check the distance to the wall
         if (verbose) {
             console.log(this.sensors);
+            console.log(this.brain.predict(Object.values(this.sensors)));
         }
     }
 
