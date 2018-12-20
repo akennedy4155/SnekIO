@@ -41,7 +41,7 @@ class Snake extends Tile {
       this.fitness++;
       // check for collisions
       // if colliding, reset the snake and print the score
-      if (this.colliding(this.location)) {
+      if (this.location.colliding(this, width, height)) {
         console.log("score:", this.score, "fitness:", this.fitness);
         this.respawn();
       }
@@ -74,23 +74,7 @@ class Snake extends Tile {
     this.fitness += 100;
   }
 
-  // determines if the location has a collision is intersecting a wall or another part of the snake
-  colliding(loc) {
-    let isCollision = false;
-    // if snake's head is off the screen then collision
-    if (loc.x < 0 || loc.x >= (width / tileSize) ||
-      loc.y < 0 || loc.y >= (height / tileSize)) {
-      isCollision = true;
-    }
-    // if head collides with any other part of the tail then collision
-    for (let i = 0; i < this.tail.length; i++) {
-      if (loc.equals(this.tail[i].location)) {
-        isCollision = true;
-        break;
-      }
-    }
-    return isCollision;
-  }
+
 
   // </editor-fold> END PHYSICAL~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
 
@@ -123,7 +107,7 @@ class Snake extends Tile {
       let checkLocation = this.location;
       // distance to the current check tile
       let dist = 0;
-      while(!this.colliding(checkLocation)) {
+      while(!checkLocation.colliding(this, width, height)) {
           checkLocation = checkLocation.add(d);
           dist = this.location.distanceTo(checkLocation);
       }
