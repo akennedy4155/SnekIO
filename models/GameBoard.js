@@ -44,6 +44,7 @@ class GameBoard {
   playTurn() {
     // move snake
     this.snake.move(this);
+    this.snake.sense(this.food);
     // snake eats
     if (this.snake.location.equals(this.food.location)) {
       this.snake.eat();
