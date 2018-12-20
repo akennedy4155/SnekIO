@@ -43,6 +43,13 @@ class Location {
   add(otherLoc) {
     return new Location(this.x + otherLoc.x, this.y + otherLoc.y);
   }
+
+  // returns the distance in grid units from this location to the function input
+  distanceFrom(otherLoc) {
+      let xDist = otherLoc.x - this.x;
+      let yDist = otherLoc.y - this.y;
+      return Math.sqrt(Math.pow(xDist, 2) + Math.pow(yDist, 2))
+  }
 }
 
 class Tile {
