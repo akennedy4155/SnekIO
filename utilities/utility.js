@@ -9,7 +9,7 @@ class Color {
 
 }
 
-let Direction = Object.freeze({
+const Direction = Object.freeze({
   'UP': {
     "x": 0,
     "y": -1,
@@ -48,6 +48,7 @@ class Location {
     return this.x == otherLoc.x && this.y == otherLoc.y;
   }
 
+  // add either another location or a direction to the location
   add(otherLoc) {
     return new Location(this.x + otherLoc.x, this.y + otherLoc.y);
   }
