@@ -7,6 +7,7 @@
 - added distanceTo(otherLoc) to the location utility
 - refactored snake.colliding to take a location and determine if that location is intersecting a wall or a snake tile
     - this could be moved to the location utility and passed the snake, width, and height of the board as arguments
+- added support for sensing in the forward direction and the sensor can be verbose and log the data to the console
 - WORKING ON NOW: getting the inputs to the neural network
 - QUESTIONS:
     - Do the inputs need to be normalized?
