@@ -45,10 +45,10 @@ class Location {
   }
 
   // returns the distance in grid units from this location to the function input
-  distanceFrom(otherLoc) {
+  distanceTo(otherLoc) {
       let xDist = otherLoc.x - this.x;
       let yDist = otherLoc.y - this.y;
-      return Math.sqrt(Math.pow(xDist, 2) + Math.pow(yDist, 2))
+      return Math.sqrt(Math.pow(xDist, 2) + Math.pow(yDist, 2));
   }
 }
 
