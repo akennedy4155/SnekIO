@@ -2,7 +2,7 @@
 
 const tileSize = 32;
 const width = 160;
-const height = 160;
+const height = width;
 const speed = 10;
 
 const redColor = new Color(255, 0, 0);
@@ -44,12 +44,13 @@ class GameBoard {
   playTurn() {
     // move snake
     this.snake.move(this);
-    this.snake.sense(this.food, true);
     // snake eats
     if (this.snake.location.equals(this.food.location)) {
       this.snake.eat();
       this.food = new Food(this.snake.getFullLocation());
     }
+    // get sensor values of snake
+    this.snake.sense(this.food, true);
   }
 
   draw() {
