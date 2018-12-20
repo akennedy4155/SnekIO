@@ -83,24 +83,31 @@ class Snake extends Tile {
     // populate the sensors with 7 data points that are input to the brain
     sense(food, verbose = false) {
         this.sensors = {};
+        const maxStraightDist = width / tileSize;
+        const maxDiagDist = Math.sqrt(Math.pow((width / tileSize),2) + Math.pow((height / tileSize), 2));
         // get the distances from dying in cardinal directions (8 directions)
         // get all of the inputs:
-        // 1. distance to dying forward
-        this.sensors['f'] = this.getNearestObstacleInDirection(this.direction);
+        // 1. distance to dying forward - normalized
+        let realFDist = this.getNearestObstacleInDirection(this.direction);
+        this.sensors['f'] = map(realFDist, 1, maxStraightDist, 0, 1);
         // 2. distance to dying left
-        this.sensors['l'] = this.getNearestObstacleInDirection(Direction[this.direction['l']]);
+        let realLDist = this.getNearestObstacleInDirection(Direction[this.direction['l']]);
+        this.sensors['l'] = map(realLDist, 1, maxStraightDist, 0, 1);
         // 3. distance to dying right
-        this.sensors['r'] = this.getNearestObstacleInDirection(Direction[this.direction['r']]);
+        let realRDist = this.getNearestObstacleInDirection(Direction[this.direction['r']]);
+        this.sensors['r'] = map(realRDist, 1, maxStraightDist, 0, 1);
         // 4. distance to dying forward left
         // make F-left object
 
-        this.sensors['fl'] = this.getNearestObstacleInDirection(this.addDirection(Direction[this.direction['l']]));
+        let realFLDist = this.getNearestObstacleInDirection(this.addDirection(Direction[this.direction['l']]));
+        this.sensors['fl'] = map(realFLDist, 1, maxDiagDist, 0, 1);
         // 5. distance to dying forward right
-        this.sensors['fr'] = this.getNearestObstacleInDirection(this.addDirection(Direction[this.direction['r']]));
+        let realFRDist = this.getNearestObstacleInDirection(this.addDirection(Direction[this.direction['r']]));
+        this.sensors['fr'] = map(realFRDist, 1, maxDiagDist, 0, 1);
         // 6. x to food
-        this.sensors['foodX'] = food.location.x;
+        this.sensors['foodX'] = map(food.location.x, 0, width / tileSize - 1, 0, 1);
         // // 7. y to food
-        this.sensors['foodY'] = food.location.y;
+        this.sensors['foodY'] = map(food.location.y, 0, width / tileSize - 1, 0, 1);
         // forward sensor
         // check the distance to the wall
         if (verbose) {
