@@ -5,8 +5,10 @@
 ### 12/19/18
 - made blue color and changed the head of the snake to blue
 - added distanceTo(otherLoc) to the location utility
+- refactored snake.colliding to take a location and determine if that location is intersecting a wall or a snake tile
+    - this could be moved to the location utility and passed the snake, width, and height of the board as arguments
 - WORKING ON NOW: getting the inputs to the neural network
 - QUESTIONS:
-- Do the inputs need to be normalized?
-- How to choose the direction based on the output classification
+    - Do the inputs need to be normalized?
+    - How to choose the direction based on the output classification
 ***
