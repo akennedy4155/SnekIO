@@ -3,26 +3,28 @@ class Snake extends Tile {
 
     constructor(location) {
         super(location, tileSize, blueColor);
-        this.direction = Direction.RIGHT;
-        // initialize the snake with two pieces of tail
-        this.tail = [
-            new Tile(new Location(-1, 0), tileSize, redColor),
-            new Tile(new Location(-2, 0), tileSize, redColor)
-        ];
-        this.lastLocation = this.tail[this.tail.length - 1].location;
-        this.fitness = 0;
-        this.score = 0;
-        this.playing = false;
         // random brain
         this.brain = new Brain(7, 6, 3);
-        this.sensors = {};
         this.directionChangedThisTurn = false;
+        // initialize snake with fresh settings
+        this.respawn();
+    }
+
+    makeTail(lenTail) {
+        let newTail  = [];
+        for(let i = 0; i < lenTail; i++){
+            newTail.push(new Tile(new Location(-1 - i, 0), tileSize, redColor));
+        }
+        return newTail;
     }
 
     // <editor-fold> PHYSICAL~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
 
     // move the snake on the gameboard, once per frame
-    move() {
+    move(food) {
+        // get sensor values of snake
+        this.sensors = this.sense(food, true);
+        this.predict();
         if (this.playing) {
             // move head
             let headPastLocation = this.location;
@@ -43,7 +45,7 @@ class Snake extends Tile {
             // if colliding, reset the snake and print the score
             if (this.location.colliding(this, width, height)) {
                 console.log("score:", this.score, "fitness:", this.fitness);
-                this.respawn();
+                this.respawn(food);
             }
             // reset the direction changed boolean
             this.directionChangedThisTurn = false;
@@ -82,38 +84,54 @@ class Snake extends Tile {
 
     // populate the sensors with 7 data points that are input to the brain
     sense(food, verbose = false) {
-        this.sensors = {};
+        let sensorData = {};
         const maxStraightDist = width / tileSize;
         const maxDiagDist = Math.sqrt(Math.pow((width / tileSize),2) + Math.pow((height / tileSize), 2));
         // get the distances from dying in cardinal directions (8 directions)
         // get all of the inputs:
         // 1. distance to dying forward - normalized
         let realFDist = this.getNearestObstacleInDirection(this.direction);
-        this.sensors['f'] = map(realFDist, 1, maxStraightDist, 0, 1);
+        sensorData['f'] = map(realFDist, 1, maxStraightDist, 0, 1);
         // 2. distance to dying left
         let realLDist = this.getNearestObstacleInDirection(Direction[this.direction['l']]);
-        this.sensors['l'] = map(realLDist, 1, maxStraightDist, 0, 1);
+        sensorData['l'] = map(realLDist, 1, maxStraightDist, 0, 1);
         // 3. distance to dying right
         let realRDist = this.getNearestObstacleInDirection(Direction[this.direction['r']]);
-        this.sensors['r'] = map(realRDist, 1, maxStraightDist, 0, 1);
+        sensorData['r'] = map(realRDist, 1, maxStraightDist, 0, 1);
         // 4. distance to dying forward left
         // make F-left object
 
         let realFLDist = this.getNearestObstacleInDirection(this.addDirection(Direction[this.direction['l']]));
-        this.sensors['fl'] = map(realFLDist, 1, maxDiagDist, 0, 1);
+        sensorData['fl'] = map(realFLDist, 1, maxDiagDist, 0, 1);
         // 5. distance to dying forward right
         let realFRDist = this.getNearestObstacleInDirection(this.addDirection(Direction[this.direction['r']]));
-        this.sensors['fr'] = map(realFRDist, 1, maxDiagDist, 0, 1);
+        sensorData['fr'] = map(realFRDist, 1, maxDiagDist, 0, 1);
         // 6. x to food
-        this.sensors['foodX'] = map(food.location.x, 0, width / tileSize - 1, 0, 1);
+        sensorData['foodX'] = map(food.location.x, 0, width / tileSize - 1, 0, 1);
         // // 7. y to food
-        this.sensors['foodY'] = map(food.location.y, 0, width / tileSize - 1, 0, 1);
-        // forward sensor
-        // check the distance to the wall
+        sensorData['foodY'] = map(food.location.y, 0, width / tileSize - 1, 0, 1);
         if (verbose) {
-            console.log(this.sensors);
-            console.log(this.brain.predict(Object.values(this.sensors)));
+            console.log(sensorData);
         }
+        return sensorData;
+    }
+
+    predict(){
+        let prediction = this.brain.predict(Object.values(this.sensors));
+        let chosenDirection = prediction.indexOf(Math.max(...prediction));
+        switch (chosenDirection) {
+            case 0:
+                this.changeDirection(Direction[this.direction['l']]);
+                break;
+            case 1:
+                break;
+            case 2:
+                this.changeDirection(Direction[this.direction['r']]);
+                break;
+            default:
+                throw new Error("Error in chosen direction switch statement...");
+        }
+        console.log(prediction);
     }
 
     // get the nearest obstacle in 1/8 of the directions (omni-directional)
@@ -142,14 +160,11 @@ class Snake extends Tile {
     respawn() {
         this.location = new Location(0, 0);
         this.direction = Direction.RIGHT;
-        this.tail = [
-            new Tile(new Location(-1, 0), tileSize, redColor),
-            new Tile(new Location(-2, 0), tileSize, redColor)
-        ];
+        this.tail = this.makeTail(4);
         this.lastLocation = this.tail[this.tail.length - 1].location;
         this.score = 0;
         this.fitness = 0;
-        this.playing = false;
+        this.playing = true;
     }
 
     // draw the snake
