@@ -15,4 +15,8 @@
 ### 12/20/18
 - sensors get all of the normalized inputs
 - makes a prediction based on these inputs
+### 12/24/18
+- change snake order to sense -> predict -> move
+- ready to start working on the collection of the snake population
+- replay system, player controlled for testing
 ***
