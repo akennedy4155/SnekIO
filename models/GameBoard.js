@@ -36,21 +36,19 @@ class GameBoard {
     }
 
     // creates the snake and the food
-    this.snake = new Snake(new Location(0, 0));
-    this.food = new Food(this.snake.getFullLocation());
+    this.food = new Food([new Location(0, 0)]);
+    this.snake = new Snake(new Location(0, 0), this.food);
   }
 
   // all of the game logic here
   playTurn() {
     // move snake
-    this.snake.move(this);
+    this.snake.move(this.food);
     // snake eats
     if (this.snake.location.equals(this.food.location)) {
       this.snake.eat();
       this.food = new Food(this.snake.getFullLocation());
     }
-    // get sensor values of snake
-    this.snake.sense(this.food, true);
   }
 
   draw() {
@@ -71,7 +69,7 @@ class GameBoard {
   // <editor-fold> BUTTON OPERATIONS~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
   // function for the click of the start button
   start() {
-    this.snake.playing = true;
+    // this.snake.playing = true;
   }
 
   // reset the snake to the starting position
